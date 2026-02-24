@@ -24,6 +24,6 @@ app.use(morgan("dev"));
 app.use(async (_req, _res, next) => {
     try {
         await connectToDB(); next();
-    } catch (e) { next(e);}
+    } catch (e) { next(e);
+    }
 });
-
