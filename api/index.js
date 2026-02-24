@@ -1,6 +1,5 @@
-//api/index.js
+// api/index.js
 import "dotenv/config";
 import app from "../src/app.js";
 
-
-export default app; //Express como handle para vercel
+export default app; // Express como handler para Vercel

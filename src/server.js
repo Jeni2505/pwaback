@@ -1,42 +1,33 @@
-import "dotenv/config";
-import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
-import morgan from "morgan";
+import 'dotenv/config';
+import express from 'express';
+import mongoose from 'mongoose';
+import morgan from 'morgan';
+import cors from 'cors';
 
-import authRoutes from "./routes/auth.routes.js";
-import taskRoutes from "./routes/task.routes.js";
+// Importar Rutas
+import taskRoutes from './routes/task.routes.js';
+import authRoutes from './routes/auth.routes.js';
+import e from 'cors';
 
+
+// Crear la aplicación de Express
 const app = express();
-
-// Middlewares
 app.use(cors());
 app.use(express.json());
-app.use(morgan("dev"));
+app.use(morgan('dev'));
 
-// Ruta base
-app.get("/", (req, res) =>
-  res.json({ ok: true, name: "Jenifer Todo API" })
-);
+app.get('/', (req, res) => res.json({ok: true, name: 'todo-pwa-api'}));
+app.use('/api/tasks', taskRoutes);
+app.use('/api/auth', authRoutes);
 
-// Rutas
-app.use("/api/auth", authRoutes);
-app.use("/api/tasks", taskRoutes);
+const{ PORT = 4000, MONGO_URI } = process.env;
 
-// Variables de entorno
-const { PORT = 4000, MONGO_URL } = process.env;
-
-// Conexión a MongoDB
-mongoose
-  .connect(MONGO_URL, { dbName: "BackPWA" })
+mongoose.connect(process.env.MONGO_URI, { dbName: 'BackPWA' })
   .then(() => {
-    console.log("Conectado a MongoDB:", mongoose.connection.name);
-
-    app.listen(PORT, () => {
-      console.log(`Servidor ejecutándose en puerto ${PORT}`);
-    });
+    console.log('✅ Conectado a MongoDB:', mongoose.connection.name);
+    app.listen(PORT, () => console.log(`API corriendo en http://localhost:${PORT}`));
   })
-  .catch((err) => {
-    console.error("Error conectando a MongoDB:", err);
+  .catch(err => {
+    console.error('❌ Error al conectar a MongoDB', err);
     process.exit(1);
   });
