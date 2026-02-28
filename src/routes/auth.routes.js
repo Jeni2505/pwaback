@@ -1,12 +1,10 @@
 import { Router } from "express";
 import { register, login, profile } from "../controllers/auth.controller.js";
-import {auth} from "../middleware/auth.js";
-
-
+import { auth } from "../middleware/auth.js";
 
 const router = Router();
-router.post('/register', register) //Registro de usuario
-router.post('/login', login);  //Iniciar sesión de usuario / login de usuario
-router.get('/profile', auth, profile);  //Obtener el perfil del usuario autenticado
+router.post("/register", register);
+router.post("/login", login);
+router.get("/profile", auth, profile);
 
 export default router;

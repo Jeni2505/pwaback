@@ -3,42 +3,50 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 export async function register(req, res) {
-    try {
-        const { name, email, password } = req.body;
-        if (!name || !email || !password)
-            return res.status(400).json({ message: 'Por favor llena todos los campos' });
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password)
+      return res.status(400).json({ message: 'Por favor llena todos los campos' });
 
-        const exists = await User.findOne({ email });
-        if (exists) return res.status(409).json({ message: 'El usuario ya existe' });
+    const exists = await User.findOne({ email });
+    if (exists) return res.status(409).json({ message: 'El usuario ya existe' });
 
-        const hash = await bcrypt.hash(password, 10);
-        const user = new User({ name, email, password: hash });
-        await user.save();
+    const hash = await bcrypt.hash(password, 10);
+    const user = new User({ name, email, password: hash }); // role: "USER" por defecto
+    await user.save();
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'changeme', { expiresIn: '7d' });
-        
-        res.status(201).json({ token, user: {id: user.id, name: user.name, email:user.email} });
-    } catch (error) {
-        res.status(500).json({ message: 'Error en el servidor' });
-    }
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'changeme', { expiresIn: '7d' });
+
+    res.status(201).json({
+      token,
+      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
 }
-export async function login(req, res){
-    try{
-        const {email, password} = req.body;
-        const user = await User.findOne({email});
-        if(!user) return res.status(404).json({message: 'Email o contraseña incorrectos'});
-        const ok = await bcrypt.compare(password, user.password);
-        if(!ok) return res.status(404).json({message: 'Email o contraseña incorrectos'});
 
-        const token = jwt.sign({id: user.id}, process.env.JWT_SECRET || 'changeme', {expiresIn:'7d'});
-        res.json({ token, user: {id: user.id, name: user.name, email: user.email}});
+export async function login(req, res) {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'Email o contraseña incorrectos' });
 
-    }catch (error) {
-        res.status(500).json({ message: 'Error en el servidor' });
-    }
+    const ok = await bcrypt.compare(password, user.password);
+    if (!ok) return res.status(404).json({ message: 'Email o contraseña incorrectos' });
+
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || 'changeme', { expiresIn: '7d' });
+
+    res.json({
+      token,
+      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
 }
 
 export async function profile(req, res) {
-    const user = await User.findById(req.userId).select('_id name email');
-    res.json({ user });
+  const user = await User.findById(req.userId).select('_id name email role');
+  res.json({ user });
 }
