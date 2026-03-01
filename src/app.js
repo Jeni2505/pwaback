@@ -50,9 +50,9 @@ app.get("/", (_req, res) => {
 /**
  * Rutas API
  */
-app.use("/auth", authRoutes);
-app.use("/tasks", taskRoutes);
-app.use("/admin", adminRoutes); // 🔥 ESTA ES LA CLAVE
+app.use("/api/auth", authRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/admin", adminRoutes); // 🔥 ESTA ES LA CLAVE
 
 /**
  * Manejo global de errores
