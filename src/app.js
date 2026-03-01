@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
+
 import taskRoutes from "./routes/task.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
@@ -8,6 +9,9 @@ import { connectToDB } from "./db/connect.js";
 
 const app = express();
 
+/**
+ * CORS
+ */
 app.use(
   cors({
     origin: [
@@ -17,10 +21,16 @@ app.use(
     credentials: true,
   })
 );
+
+/**
+ * Middlewares básicos
+ */
 app.use(express.json());
 app.use(morgan("dev"));
 
-// Conexión a Mongo cacheada por request (seguro en serverless)
+/**
+ * Conexión a Mongo (segura para serverless)
+ */
 app.use(async (_req, _res, next) => {
   try {
     await connectToDB();
@@ -30,9 +40,26 @@ app.use(async (_req, _res, next) => {
   }
 });
 
-app.get("/", (_req, res) => res.json({ ok: true, name: "todo-pwa-api" }));
-app.use("/api/tasks", taskRoutes);
+/**
+ * Ruta base
+ */
+app.get("/", (_req, res) => {
+  res.json({ ok: true, name: "todo-pwa-api" });
+});
+
+/**
+ * Rutas API
+ */
 app.use("/api/auth", authRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/admin", adminRoutes); // 🔥 ESTA ES LA CLAVE
+
+/**
+ * Manejo global de errores
+ */
+app.use((err, _req, res, _next) => {
+  console.error(err);
+  res.status(500).json({ message: "Error interno del servidor" });
+});
 
 export default app;
