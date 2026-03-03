@@ -1,13 +1,14 @@
-import { Router } from "express";
-import { auth, adminOnly } from "../middleware/auth.js";
-import { listUsers, heartbeat } from "../controllers/admin.controller.js";
+import { Router } from 'express';
+import { auth, adminOnly } from '../middleware/auth.js';
+import { heartbeat, getOnlineUsers, getAllUsers } from '../controllers/admin.controller.js';
 
 const router = Router();
 
-// Todos los usuarios autenticados pueden enviar heartbeat
-router.post("/heartbeat", auth, heartbeat);
+// Cualquier usuario autenticado puede hacer heartbeat
+router.post('/heartbeat', auth, heartbeat);
 
-// Solo ADMIN puede ver la lista de usuarios
-router.get("/users", auth, adminOnly, listUsers);
+// Solo ADMIN puede ver usuarios online y lista completa
+router.get('/online', auth, adminOnly, getOnlineUsers);
+router.get('/users',  auth, adminOnly, getAllUsers);
 
 export default router;

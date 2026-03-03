@@ -57,6 +57,9 @@ export async function login(req, res) {
     if (!ok)
       return res.status(404).json({ message: 'Email o contraseña incorrectos' });
 
+    // Justo antes de crear el token en login()
+    await User.findByIdAndUpdate(user._id, { lastSeen: new Date() });
+
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET || 'changeme',
